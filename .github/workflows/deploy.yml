@@ -18,6 +18,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      BASE_PATH: /PaginaProyectoIO
+      SITE_URL: https://gabrielajiizaaa.github.io
     steps:
       - uses: actions/checkout@v4
       - uses: withastro/action@v3

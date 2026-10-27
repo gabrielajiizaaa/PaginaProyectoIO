@@ -24,3 +24,13 @@ Estilo brutalista: papel, tinta negra y un solo acento rojo; sin sombras, brillo
 Las animaciones se muestran siempre, aunque Windows/macOS tengan los efectos de animación desactivados.
 El botón inferior derecho permite apagarlas o encenderlas y la preferencia se recuerda. Todo el contenido
 está en el HTML, así que sin JavaScript o con animaciones apagadas la página se ve completa.
+
+## Publicar en Cloudflare
+
+En Cloudflare: **Workers & Pages → Create → Import a repository** y elige este repo.
+
+- Build command: `npm run build`
+- Deploy command (Workers): `npx wrangler deploy` · o, si usas Pages, Build output directory: `dist`
+
+La página se sirve en la raíz del dominio. `wrangler.jsonc` y `.node-version` ya están configurados.
+GitHub Pages sigue funcionando: su workflow compila con `BASE_PATH=/PaginaProyectoIO`.

@@ -1,0 +1,9 @@
+// Cloudflare Workers: sirve la carpeta dist/ como sitio estático.
+// Build: npm run build · Deploy: npx wrangler deploy
+{
+  "name": "ejez",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist"
+  }
+}
