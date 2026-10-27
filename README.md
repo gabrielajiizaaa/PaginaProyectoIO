@@ -33,4 +33,3 @@ En Cloudflare: **Workers & Pages → Create → Import a repository** y elige es
 - Deploy command (Workers): `npx wrangler deploy` · o, si usas Pages, Build output directory: `dist`
 
 La página se sirve en la raíz del dominio. `wrangler.jsonc` y `.node-version` ya están configurados.
-GitHub Pages sigue funcionando: su workflow compila con `BASE_PATH=/PaginaProyectoIO`.
