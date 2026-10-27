@@ -1,0 +1,86 @@
+---
+import Split from './Split.astro';
+import Marquee from './Marquee.astro';
+import { conclusiones, equipo } from '../data/ejez';
+---
+
+<section id="conclusiones" class="section concl">
+  <div class="wrap">
+    <p class="eyebrow" data-reveal="up">06 — Conclusiones</p>
+    <Split as="h2" class="title" text="Lo que demuestran los tres modelos" />
+  </div>
+  <ol class="cards">
+    {conclusiones.map((c, i) => (
+      <li class:list={['cc', { red: i === 0 }]} data-reveal="up" style={`--d:${i * 110}`}>
+        <span class="idx">0{i + 1}</span>
+        <h3>{c.t}</h3>
+        <p class="mono">{c.d}</p>
+      </li>
+    ))}
+  </ol>
+</section>
+
+<Marquee items={['Gracias', 'EjeZ', 'Colas', 'Simplex', 'JaamSim', 'ROI 53 %']} dark rev speed={34} />
+
+<section class="outro">
+  <div class="wrap outro-inner">
+    <p class="mono term"><span class="caret" data-type="100" aria-label="SESSION_END // GRACIAS POR SU ATENCIÓN">SESSION_END // GRACIAS POR SU ATENCIÓN</span></p>
+    <Split as="h2" class="q" text="¿Preguntas?" />
+    <div class="foot-grid">
+      <ul class="people" data-reveal="up">
+        {equipo.integrantes.map((p) => (
+          <li><b>{p.nombre}</b> <span class="mono">{p.carne}</span></li>
+        ))}
+      </ul>
+      <p class="mono grp" data-reveal="up" style="--d:100">
+        {equipo.grupo} · {equipo.curso} · {equipo.fecha}
+        {equipo.correo && <Fragment> · <a href={`mailto:${equipo.correo}`}>{equipo.correo}</a></Fragment>}
+      </p>
+      <a class="btn" href="#inicio" data-reveal="up" style="--d:200">↑ Volver al inicio</a>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap mono">
+    <span>EjeZ® · Impresión 3D bajo demanda</span>
+    <span>Colas M/M/s · Simplex LP · JaamSim</span>
+  </div>
+</footer>
+
+<style>
+  .concl { padding-bottom: 0; }
+  .cards { list-style: none; padding: 0; margin: 48px 0 0; display: grid; grid-template-columns: repeat(4, 1fr); border-top: var(--b); }
+  .cc { display: flex; flex-direction: column; gap: 14px; min-height: 340px; padding: 24px; border-right: var(--b); transition: background 0.15s, color 0.15s; }
+  .cc:last-child { border-right: 0; }
+  .cc:hover { background: var(--ink); color: var(--paper); }
+  .cc.red { background: var(--red); color: var(--paper); }
+  .idx { font-size: 4rem; font-weight: 900; line-height: 0.8; letter-spacing: -0.06em; font-stretch: 125%; }
+  .cc h3 { font-size: clamp(1.5rem, 2.2vw, 2rem); margin-top: auto; }
+  .cc p { font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em; line-height: 1.45; }
+
+  .outro { background: var(--ink); color: var(--paper); }
+  .outro-inner { padding-block: clamp(60px, 9vw, 120px) clamp(40px, 6vw, 70px); }
+  .term { font-size: 12px; color: var(--red); letter-spacing: 0.08em; min-height: 1.5em; }
+  :global(.q) { font-size: clamp(2.6rem, 10.5vw, 10.5rem); letter-spacing: -0.07em; margin: 24px 0 40px; font-stretch: 120%; }
+  .foot-grid { display: grid; grid-template-columns: 1.4fr 1.4fr auto; gap: 24px; align-items: end; border-top: 2px solid var(--paper); padding-top: 24px; }
+  .people { list-style: none; padding: 0; margin: 0; font-size: 1.1rem; text-transform: uppercase; }
+  .people .mono { color: var(--red); margin-left: 6px; }
+  .grp { font-size: 12px; text-transform: uppercase; color: #b9b8b0; letter-spacing: 0.05em; }
+  .outro .btn { background: var(--red); border-color: var(--red); }
+  .outro .btn:hover { background: var(--paper); color: var(--ink); border-color: var(--paper); }
+
+  .foot { background: var(--ink); color: #b9b8b0; border-top: 1px solid #333; padding: 18px 0 80px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .foot .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+
+  @media (max-width: 1000px) {
+    .cards { grid-template-columns: 1fr 1fr; }
+    .cc { border-bottom: var(--b); min-height: 260px; }
+    .cc:nth-child(2n) { border-right: 0; }
+    .foot-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px) {
+    .cards { grid-template-columns: 1fr; }
+    .cc { border-right: 0; min-height: 200px; }
+  }
+</style>

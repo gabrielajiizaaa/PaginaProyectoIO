@@ -1,0 +1,48 @@
+---
+import '@fontsource-variable/archivo/wdth.css';
+import '@fontsource-variable/jetbrains-mono';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+}
+const { title, description } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#f2f1ec" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content="/media/hero-poster.jpg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <!--
+      Las animaciones se muestran siempre, aunque el sistema operativo tenga
+      los efectos de animación desactivados. Solo se apagan si la persona usa
+      el botón "Animaciones". Sin JavaScript todo el contenido se ve completo.
+    -->
+    <script is:inline>
+      (function () {
+        var pref = null;
+        try { pref = localStorage.getItem('ejez-motion'); } catch (e) {}
+        var root = document.documentElement;
+        root.classList.add('js');
+        if (pref !== 'off') root.classList.add('motion');
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#contenido">Saltar al contenido</a>
+    <div class="progress" aria-hidden="true"><span></span></div>
+    <slot />
+    <script>
+      import '../scripts/motion.ts';
+    </script>
+  </body>
+</html>

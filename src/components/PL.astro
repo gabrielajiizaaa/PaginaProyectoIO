@@ -1,0 +1,142 @@
+---
+import Split from './Split.astro';
+import { mezcla, recursos, demanda } from '../data/ejez';
+const totalSemana = mezcla.reduce((a, m) => a + m.semana, 0);
+const maxSemana = Math.max(...mezcla.map((m) => m.semana));
+const fmt = (n: number, d = 0) => n.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+---
+
+<!-- 03.1 Mezcla óptima -->
+<section class="section">
+  <div class="wrap">
+    <p class="eyebrow" data-reveal="up">03.1 — Mezcla óptima · Solver Simplex LP</p>
+    <Split as="h2" class="title" text="La mezcla que más gana por semana" />
+
+    <div class="pl-layout">
+      <div class="table-wrap" data-reveal="screen">
+        <table>
+          <caption class="sr-only">Mezcla óptima de trabajos por semana</caption>
+          <thead>
+            <tr><th>Trabajo</th><th class="num">Precio</th><th class="num">Ganancia</th><th>Por semana</th></tr>
+          </thead>
+          <tbody data-io>
+            {mezcla.map((m, i) => (
+              <tr>
+                <td><span class="mono xid">{m.id}</span> <b>{m.trabajo}</b></td>
+                <td class="num mono">Q{m.precio}</td>
+                <td class="num mono">Q{fmt(m.ganancia, 2)}</td>
+                <td>
+                  <span class="qty">
+                    <span class="qbar" aria-hidden="true"><span data-grow="x" style={`width:${(m.semana / maxSemana) * 100}%; --d:${i * 100}`}></span></span>
+                    <b class="mono">{m.semana}</b>
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr><td colspan="3">Total</td><td class="mono">{totalSemana} trabajos</td></tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <div class="zcard" data-reveal="wipe" style="--d:200">
+        <p class="kicker">[ Z máx · ganancia ]</p>
+        <p class="zval"><span data-count="5936.25" data-dec="2" data-pre="Q">Q5,936.25</span></p>
+        <p class="zsub">Por semana, con 83 trabajos</p>
+        <p class="mono eq">Ganancia por trabajo = precio − filamento − luz − acabado</p>
+      </div>
+    </div>
+    <p class="source" data-reveal="up">Fuente: XLSX › PL (A4–I9, B18–G28)</p>
+  </div>
+</section>
+
+<!-- 03.2 Restricciones -->
+<section class="section">
+  <div class="wrap">
+    <p class="eyebrow" data-reveal="up">03.2 — Restricciones</p>
+    <h2 class="title"><Split as="span" text="Las impresoras quedan al" /> <span class="hl">100 %</span></h2>
+
+    <div class="rest">
+      <div class="card" data-reveal="left">
+        <p class="kicker">[ Recursos semanales ]</p>
+        <ul class="res" data-io>
+          {recursos.map((r, i) => {
+            const pct = (r.usado / r.total) * 100;
+            return (
+              <li>
+                <div class="rh"><b>{r.nombre}</b><span class="mono">{fmt(r.usado, r.usado % 1 ? 2 : 0)} / {fmt(r.total)} {r.unidad} · <b class:list={{ red: pct >= 100 }}>{r.nota}</b></span></div>
+                <div class="track" aria-hidden="true">
+                  <span class:list={{ full: pct >= 100 }} data-grow="x" style={`width:${pct}%; --d:${i * 160}`}></span>
+                  {[25, 50, 75].map((t) => <i style={`left:${t}%`}></i>)}
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+        <p class="mono cap">Capacidad = 6 impresoras × 10 h × 6 días = <b class="red">360 h</b> por semana</p>
+      </div>
+
+      <div class="card ink" data-reveal="right">
+        <p class="kicker">[ Demanda máxima por tipo ]</p>
+        <ul class="dem" data-io>
+          {demanda.map((d, i) => (
+            <li>
+              <b class="dt">{d.tipo}</b>
+              <span class="cells" aria-hidden="true">
+                {Array.from({ length: d.max }, (_, k) => <i class:list={{ on: k < d.usado }} style={`--k:${k}; --r:${i}`}></i>)}
+              </span>
+              <span class="mono dv">{d.usado}/{d.max} · {d.nota}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+    <p class="source" data-reveal="up">Fuente: XLSX › PL (G19–I34)</p>
+  </div>
+</section>
+
+<style>
+  .pl-layout { display: grid; grid-template-columns: 1.6fr 1fr; gap: 0; margin-top: 48px; }
+  .pl-layout .table-wrap { border-right: 0; }
+  .xid { font-size: 11px; background: var(--ink); color: var(--paper); padding: 3px 5px; margin-right: 6px; }
+  .qty { display: flex; align-items: center; gap: 12px; }
+  .qbar { flex: 1; min-width: 60px; height: 14px; border: 2px solid var(--ink); }
+  .qbar span { display: block; height: 100%; background: var(--ink); transform-origin: 0 50%; }
+  tbody tr:nth-child(1) .qbar span { background: var(--red); }
+  .qty b { min-width: 2ch; text-align: right; }
+
+  .zcard { display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: clamp(20px, 3vw, 34px); background: var(--red); color: var(--paper); border: var(--b); }
+  .zcard .kicker { color: var(--paper); }
+  .zval { font-size: clamp(2.8rem, 5.6vw, 5rem); font-weight: 900; letter-spacing: -0.06em; line-height: 0.9; font-variant-numeric: tabular-nums; font-stretch: 112%; }
+  .zsub { font-weight: 900; text-transform: uppercase; font-size: 1.1rem; }
+  .eq { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 18px; padding-top: 14px; border-top: 2px solid var(--paper); }
+
+  .rest { display: grid; grid-template-columns: 1fr 1fr; margin-top: 48px; }
+  .rest .card:first-child { border-right: 0; }
+  .res { list-style: none; padding: 0; margin: 24px 0 0; display: grid; gap: 22px; }
+  .rh { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; text-transform: uppercase; font-size: 0.95rem; }
+  .rh .mono { font-size: 11.5px; }
+  .track { position: relative; height: 22px; border: var(--b); }
+  .track span { display: block; height: 100%; background: var(--ink); transform-origin: 0 50%; }
+  .track span.full { background: var(--red); }
+  .track i { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--paper); mix-blend-mode: difference; }
+  .cap { margin-top: 26px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; padding-top: 16px; border-top: var(--b); }
+
+  .dem { list-style: none; padding: 0; margin: 20px 0 0; display: grid; }
+  .dem li { display: grid; grid-template-columns: 7.5em 1fr; gap: 6px 14px; align-items: center; padding: 12px 0; border-bottom: 1px solid #444; }
+  .dem li:last-child { border-bottom: 0; }
+  .dt { text-transform: uppercase; }
+  .dv { grid-column: 2; font-size: 11px; color: #b9b8b0; text-transform: uppercase; }
+  .cells { display: flex; gap: 2px; }
+  .cells i { flex: 1; height: 18px; border: 1px solid #777; }
+  .cells i.on { background: var(--paper); border-color: var(--paper); }
+  :global(html.motion) .cells i.on { opacity: 0; transition: opacity 0.05s; transition-delay: calc(var(--r) * 150ms + var(--k) * 25ms); }
+  :global(html.motion) .is-in .cells i.on { opacity: 1; }
+
+  @media (max-width: 900px) {
+    .pl-layout, .rest { grid-template-columns: 1fr; }
+    .pl-layout .table-wrap { border-right: var(--b); border-bottom: 0; }
+    .rest .card:first-child { border-right: var(--b); border-bottom: 0; }
+  }
+</style>

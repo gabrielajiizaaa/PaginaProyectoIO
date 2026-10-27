@@ -1,0 +1,42 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/Nav.astro';
+import Hero from '../components/Hero.astro';
+import Problema from '../components/Problema.astro';
+import ModuleIntro from '../components/ModuleIntro.astro';
+import Colas from '../components/Colas.astro';
+import PL from '../components/PL.astro';
+import Simulacion from '../components/Simulacion.astro';
+import Inversion from '../components/Inversion.astro';
+import Cierre from '../components/Cierre.astro';
+---
+
+<Layout
+  title="EjeZ · Impresión 3D bajo demanda"
+  description="Proyecto final de Investigación de Operaciones: teoría de colas, programación lineal y simulación en JaamSim para dimensionar un negocio de impresión 3D."
+>
+  <Nav />
+  <main id="contenido">
+    <Hero />
+    <Problema />
+
+    <ModuleIntro id="colas" n="02" titulo="Teoría de colas" pregunta="¿Cuántas impresoras necesita EjeZ para que nadie espere de más?" terminal="MODULE_02 :: QUEUEING_MODEL M/M/s — LOADED" />
+    <Colas />
+
+    <ModuleIntro id="pl" n="03" titulo="Programación lineal" pregunta="¿Qué mezcla de trabajos deja más ganancia cada semana?" terminal="MODULE_03 :: LINEAR_PROGRAM / SIMPLEX LP — LOADED" color="violet" />
+    <PL />
+
+    <ModuleIntro id="simulacion" n="04" titulo="Simulación en JaamSim" pregunta="¿Se sostienen los resultados cuando los tiempos varían?" terminal="MODULE_04 :: DISCRETE_EVENT_SIM / JAAMSIM — RUNNING" color="amber" />
+    <Simulacion />
+
+    <ModuleIntro id="inversion" n="05" titulo="Inversión" pregunta="¿Qué compramos con Q40,000 y cuánto recibe el inversionista?" terminal="MODULE_05 :: INVESTMENT_PLAN / ROI — COMPUTED" />
+    <Inversion />
+
+    <Cierre />
+  </main>
+
+  <button class="motion-toggle" type="button" aria-pressed="true">
+    <span class="dot" aria-hidden="true"></span>
+    <span><span class="label-long">Animaciones </span><span class="state">activadas</span></span>
+  </button>
+</Layout>

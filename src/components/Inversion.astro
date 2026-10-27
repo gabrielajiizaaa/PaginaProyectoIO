@@ -1,0 +1,209 @@
+---
+import Split from './Split.astro';
+import { impresoras, presupuesto, gruposPresupuesto, cascada } from '../data/ejez';
+const total = presupuesto.reduce((a, p) => a + p.monto, 0);
+const fmt = (n: number, d = 0) => n.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+const q = (n: number) => (n < 0 ? '−' : '') + 'Q' + fmt(Math.abs(n), Math.abs(n) % 1 ? 2 : 0);
+const maxC = 237450;
+// Cascada: posición de cada barra (inicio y fin) en escala 0..maxC
+let acc = 0;
+const pasos = cascada.map((c) => {
+  let from = 0, to = 0;
+  if (c.tipo === 'resta') { from = acc + c.v; to = acc; acc += c.v; }
+  else { from = 0; to = c.v; acc = c.v; }
+  return { ...c, from: (from / maxC) * 100, to: (to / maxC) * 100 };
+});
+// Patrones de relleno por grupo (sin colores extra: tinta, rojo y rayado)
+const relleno: Record<string, string> = {
+  equipos: 'var(--ink)',
+  insumos: 'repeating-linear-gradient(-45deg, var(--ink) 0 3px, var(--paper) 3px 7px)',
+  lanzamiento: 'var(--red)',
+};
+const grupos = Object.entries(gruposPresupuesto).map(([k, g]) => ({
+  key: k,
+  nombre: g.nombre,
+  monto: presupuesto.filter((p) => p.grupo === k).reduce((a, p) => a + p.monto, 0),
+}));
+---
+
+<!-- 05.1 Precios -->
+<section class="section">
+  <div class="wrap">
+    <p class="eyebrow" data-reveal="up">05.1 — Precios consultados el 21/10/2026</p>
+    <h2 class="title"><Split as="span" text="Elegimos Bambu Lab:" /> <span class="hl">A1 y A2L</span></h2>
+    <div class="table-wrap prn" data-reveal="screen">
+      <table>
+        <caption class="sr-only">Impresoras comparadas y decisión de compra</caption>
+        <thead><tr><th>Impresora</th><th>Tienda</th><th class="num">Precio</th><th>Área (mm)</th><th>Decisión</th></tr></thead>
+        <tbody>
+          {impresoras.map((p) => {
+            const yes = p.decision.startsWith('Sí');
+            return (
+              <tr class:list={{ chosen: yes }}>
+                <td><b>{p.modelo}</b></td>
+                <td class="c-muted">{p.tienda}</td>
+                <td class="num mono">Q{fmt(p.precio)}</td>
+                <td class="mono">{p.area}</td>
+                <td><span class:list={['pill', { yes, alt: p.decision === 'Alternativa' }]}>{yes && '✓ '}{p.decision}</span></td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+    <div class="grid grid-2 why">
+      <div class="card glow" data-reveal="up"><p class="kicker">Bambu Lab A1 × 5</p><p class="w">Se calibra sola y es confiable.</p></div>
+      <div class="card glow" data-reveal="up" style="--d:120"><p class="kicker">Bambu Lab A2L × 1</p><p class="w">Formato grande para maquetas.</p></div>
+    </div>
+    <p class="source" data-reveal="up">Fuente: XLSX › Equipos (A3–F11)</p>
+  </div>
+</section>
+
+<!-- 05.2 Presupuesto -->
+<section class="section">
+  <div class="wrap">
+    <p class="eyebrow" data-reveal="up">05.2 — Presupuesto de inversión</p>
+    <h2 class="title"><Split as="span" text="Así se reparten los" /> <span class="hl">Q40,000</span></h2>
+
+    <div class="budget" data-reveal="up">
+      <div class="stackbar" data-io aria-hidden="true">
+        {presupuesto.map((p, i) => (
+          <span data-grow="x" style={`flex:${p.monto}; background:${relleno[p.grupo]}; --d:${i * 70}`} title={`${p.item}: ${q(p.monto)}`}></span>
+        ))}
+      </div>
+      <div class="groups mono">
+        {grupos.map((g) => (
+          <span><i style={`background:${relleno[g.key]}`}></i>{g.nombre} · {q(g.monto)}</span>
+        ))}
+        <span class="tot">Total <b>{q(total)}</b></span>
+      </div>
+      <ul class="items" data-io>
+        {presupuesto.map((p, i) => (
+          <li data-reveal="left" style={`--d:${i * 60}`}>
+            <span class="pct">{Math.round((p.monto / total) * 100)}%</span>
+            <span class="name"><b>{p.item}</b></span>
+            <span class="bar" aria-hidden="true"><span data-grow="x" style={`width:${(p.monto / presupuesto[0].monto) * 100}%; background:${relleno[p.grupo]}; --d:${200 + i * 70}`}></span></span>
+            <span class="mono amt">{q(p.monto)}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+    <p class="source" data-reveal="up">Fuente: XLSX › Equipos (A21–E33)</p>
+  </div>
+</section>
+
+<!-- 05.3 Proyección -->
+<section class="section">
+  <div class="wrap">
+    <p class="eyebrow" data-reveal="up">05.3 — Proyección a un año</p>
+    <Split as="h2" class="title" text="De la ganancia a la utilidad neta" />
+    <figure class="fall" data-reveal="screen">
+      <figcaption class="sr-only">Cascada financiera anual: {cascada.map((c) => `${c.k} ${q(c.v)}`).join('; ')}.</figcaption>
+      <ol class="wf" data-io>
+        {pasos.map((p, i) => (
+          <li class={p.tipo}>
+            <span class="lbl"><span class="mono idx">{String(i + 1).padStart(2, '0')}</span><b>{p.k}</b>{p.d && <span class="mono d"> {p.d}</span>}</span>
+            <span class="lane" aria-hidden="true">
+              <span class="seg" data-grow="x" style={`left:${p.from}%; width:${p.to - p.from}%; --d:${i * 150}`}></span>
+            </span>
+            <span class="mono amt">{q(p.v)}</span>
+          </li>
+        ))}
+      </ol>
+    </figure>
+    <p class="source" data-reveal="up">Fuente: XLSX › Inversión (A1–B21)</p>
+  </div>
+</section>
+
+<!-- 05.4 Oferta -->
+<section class="section">
+  <div class="wrap">
+    <p class="eyebrow" data-reveal="up">05.4 — Oferta al inversionista</p>
+    <h2 class="title"><span class="hl">53 %</span> <Split as="span" text="de retorno al año" delay={200} /></h2>
+    <div class="grid grid-3 offer">
+      <div class="card glow" data-reveal="up">
+        <p class="kicker">[ Participación ]</p>
+        <p class="giant"><span data-count="20" data-suf="%">20%</span></p>
+        <p class="t">De la utilidad neta: Q21,217.50 al año</p>
+      </div>
+      <div class="card redbg" data-reveal="up" style="--d:120">
+        <p class="kicker">[ Retorno anual ]</p>
+        <p class="giant"><span data-count="53" data-suf="%">53%</span></p>
+        <p class="t">Q21,217.50 sobre los Q40,000 invertidos</p>
+        <div class="roi" data-io aria-hidden="true"><span data-grow="x"></span></div>
+      </div>
+      <div class="card ink" data-reveal="up" style="--d:240">
+        <p class="kicker">[ Recuperación ]</p>
+        <p class="giant"><span data-count="4.5" data-dec="1">4.5</span><small> meses</small></p>
+        <p class="t">Para que la utilidad neta del negocio cubra los Q40,000</p>
+        <div class="months" data-io aria-hidden="true">
+          {Array.from({ length: 12 }, (_, i) => <span class:list={{ on: i < 4, half: i === 4 }} style={`--i:${i}`}>{i + 1}</span>)}
+        </div>
+      </div>
+    </div>
+    <p class="closing">Después del pago al inversionista, a EjeZ le quedan <span class="hl">Q84,870</span> al año.</p>
+    <p class="source" data-reveal="up">Fuente: XLSX › Inversión (B17–B22)</p>
+  </div>
+</section>
+
+<style>
+  .prn { margin-top: 48px; }
+  .why { margin-top: -2px; }
+  .w { font-size: 1.3rem; font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; margin-top: 8px; }
+
+  .budget { margin-top: 48px; border: var(--b); padding: clamp(18px, 2.6vw, 30px); }
+  .stackbar { display: flex; height: 48px; border: var(--b); gap: 2px; background: var(--paper); }
+  .stackbar span { display: block; height: 100%; transform-origin: 0 50%; }
+  .groups { display: flex; flex-wrap: wrap; gap: 10px 24px; margin-top: 14px; font-size: 11.5px; text-transform: uppercase; align-items: center; letter-spacing: 0.04em; }
+  .groups i { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--ink); margin-right: 8px; vertical-align: middle; }
+  .tot { margin-left: auto; font-size: 13px; background: var(--ink); color: var(--paper); padding: 6px 10px; }
+  .items { list-style: none; padding: 0; margin: 26px 0 0; border-top: var(--b); }
+  .items li { display: grid; grid-template-columns: 3.5em minmax(160px, 1.1fr) 2fr 7em; gap: 16px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--ink); }
+  .pct { font-weight: 900; font-size: 1.3rem; letter-spacing: -0.04em; }
+  .name { text-transform: uppercase; font-size: 0.92rem; }
+  .bar { height: 16px; border: 2px solid var(--ink); }
+  .bar span { display: block; height: 100%; transform-origin: 0 50%; }
+  .amt { font-size: 13px; text-align: right; font-weight: 700; }
+
+  .fall { margin: 48px 0 0; border: var(--b); padding: clamp(14px, 2vw, 24px) clamp(18px, 2.6vw, 30px); }
+  .wf { list-style: none; padding: 0; margin: 0; }
+  .wf li { display: grid; grid-template-columns: minmax(210px, 1fr) 2.4fr 9em; gap: 18px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--ink); }
+  .wf li:last-child { border: 0; }
+  .lbl { text-transform: uppercase; font-size: 0.95rem; }
+  .idx { color: var(--red); font-size: 11px; margin-right: 8px; }
+  .d { font-size: 10.5px; color: var(--mute); }
+  .lane { position: relative; height: 32px; background: repeating-linear-gradient(90deg, var(--paper-2) 0 1px, transparent 1px 10%); }
+  .seg { position: absolute; top: 0; bottom: 0; transform-origin: 0 50%; }
+  .total .seg, .sub .seg { background: var(--ink); }
+  .sub .seg { background: repeating-linear-gradient(-45deg, var(--ink) 0 4px, var(--paper) 4px 8px); border: 2px solid var(--ink); }
+  .resta .seg { background: var(--paper); border: 2px dashed var(--red); transform-origin: 100% 50%; }
+  .final .seg { background: var(--red); }
+  .resta .amt { color: var(--red); }
+  .final .lbl b, .final .amt { color: var(--red); }
+  .wf .amt { text-align: right; font-size: 13px; font-weight: 700; }
+
+  .offer { margin-top: 48px; }
+  .offer .card { display: flex; flex-direction: column; gap: 12px; min-height: 300px; }
+  .giant { font-size: clamp(5rem, 9vw, 8rem); font-weight: 900; line-height: 0.82; letter-spacing: -0.07em; font-stretch: 120%; margin-top: auto; }
+  .giant small { font-size: 0.25em; letter-spacing: 0; text-transform: uppercase; }
+  .t { font-weight: 700; text-transform: uppercase; font-size: 0.9rem; }
+  .roi { height: 16px; border: 2px solid var(--paper); }
+  .roi span { display: block; width: 53%; height: 100%; background: var(--paper); transform-origin: 0 50%; }
+  .months { display: grid; grid-template-columns: repeat(12, 1fr); border: 2px solid var(--paper); }
+  .months span { font: 600 9px/1 var(--mono); text-align: center; padding: 8px 0; border-right: 1px solid #555; }
+  .months span:last-child { border-right: 0; }
+  .months .on { background: var(--red); }
+  .months .half { background: linear-gradient(90deg, var(--red) 50%, transparent 50%); }
+  :global(html.motion) .months .on, :global(html.motion) .months .half { background: transparent; transition: background 0.05s; transition-delay: calc(var(--i) * 180ms + 400ms); }
+  :global(html.motion) .months.is-in .on { background: var(--red); }
+  :global(html.motion) .months.is-in .half { background: linear-gradient(90deg, var(--red) 50%, transparent 50%); }
+  .closing { margin-top: 36px; font-size: clamp(1.3rem, 2.6vw, 2.2rem); font-weight: 900; text-transform: uppercase; letter-spacing: -0.03em; line-height: 1.1; max-width: 26ch; }
+
+  @media (max-width: 760px) {
+    .items li { grid-template-columns: 3em 1fr auto; gap: 6px 12px; }
+    .items .bar { grid-column: 1 / -1; grid-row: 2; }
+    .wf li { grid-template-columns: 1fr auto; gap: 6px 12px; }
+    .wf .lane { grid-column: 1 / -1; grid-row: 2; }
+    .tot { margin-left: 0; }
+  }
+</style>

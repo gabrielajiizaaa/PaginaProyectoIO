@@ -1,0 +1,227 @@
+---
+import Split from './Split.astro';
+import { etapas, excelVsSim, replicas, laboratorio } from '../data/ejez';
+const maxR = 90;
+const prom = 34.6;
+---
+
+<!-- 04.1 Modelo en JaamSim -->
+<section class="section">
+  <div class="wrap">
+    <p class="eyebrow" data-reveal="up">04.1 — El modelo en JaamSim</p>
+    <Split as="h2" class="title" text="5 etapas, del pedido a la entrega" />
+
+    <ol class="flow">
+      {etapas.map((e, i) => (
+        <li class="stage" data-reveal="up" style={`--d:${i * 110}`}>
+          <span class="sn mono">{String(i + 1).padStart(2, '0')}</span>
+          <b>{e.titulo}</b>
+          <span class="mono sub">{e.sub}</span>
+          <span class="led" style={`--i:${i}`} aria-hidden="true"></span>
+        </li>
+      ))}
+    </ol>
+    <div class="belt" aria-hidden="true"><span></span><span></span><span></span></div>
+
+    <div class="sim-layout">
+      <figure class="screen" data-reveal="screen">
+        <div class="chrome mono" aria-hidden="true"><span>[ JaamSim ] Simulador EjeZ</span><span class="red">● Running</span></div>
+        <video controls muted loop playsinline preload="metadata" poster="/media/clip-simulador-poster.jpg" data-ambient>
+          <source src="/media/clip-simulador.mp4" type="video/mp4" />
+        </video>
+        <figcaption class="sr-only">Clip del modelo de simulación EjeZ corriendo en JaamSim.</figcaption>
+      </figure>
+      <div class="config ink" data-reveal="right" style="--d:200">
+        <p class="kicker">[ Configuración ]</p>
+        <ul>
+          <li><span class="n">10</span> réplicas de 72 h</li>
+          <li><span class="n">24 h</span> de calentamiento</li>
+          <li><span class="n">△</span> tiempos triangulares</li>
+        </ul>
+      </div>
+    </div>
+    <p class="source" data-reveal="up">Fuente: Video Simulador.mp4 · XLSX › Simulador</p>
+  </div>
+</section>
+
+<!-- 04.2 Excel vs simulador -->
+<section class="section">
+  <div class="wrap">
+    <p class="eyebrow" data-reveal="up">04.2 — Excel vs. simulador · EjeZ</p>
+    <h2 class="title"><Split as="span" text="Excel y simulador" /> <span class="hl">coinciden</span></h2>
+    <div class="table-wrap ev" data-reveal="screen">
+      <table>
+        <caption class="sr-only">Comparación de resultados entre Excel y el simulador</caption>
+        <thead><tr><th>Resultado</th><th class="num">Excel</th><th class="num">Simulador</th><th class="num">Diferencia</th></tr></thead>
+        <tbody>
+          {excelVsSim.map((r) => (
+            <tr><td><b>{r.r}</b></td><td class="num mono">{r.excel}</td><td class="num mono">{r.sim}</td><td class="num mono red">{r.dif}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <div class="ev-bottom">
+      <p class="note"><b class="red">¿Por qué sube la utilización?</b> La mezcla de la PL promedia 4.34 h por pedido; Colas usa 4 h.</p>
+      <figure class="shot" data-reveal="wipe">
+        <a href="/media/simulador-empresa.webp" target="_blank" rel="noopener" aria-label="Ver captura del simulador EjeZ en tamaño completo">
+          <img src="/media/simulador-empresa.webp" alt="Captura de JaamSim: Simulador Impresión 3D de la empresa con 6 impresoras, réplica 10 de 10, espera promedio en cola de 44.1 minutos." loading="lazy" width="1919" height="1035" />
+        </a>
+        <figcaption class="mono">Réplica 10 de 10 · 44.1 min de espera</figcaption>
+      </figure>
+    </div>
+    <p class="source" data-reveal="up">Fuente: XLSX › Simulador (A50–D56)</p>
+  </div>
+</section>
+
+<!-- 04.3 Réplicas -->
+<section class="section">
+  <div class="wrap">
+    <p class="eyebrow" data-reveal="up">04.3 — Espera en cola por réplica (min)</p>
+    <Split as="h2" class="title" text="El azar mueve cada réplica" />
+    <div class="rep-layout">
+      <figure class="rep-chart" data-reveal="screen">
+        <figcaption class="sr-only">Espera en cola por réplica en minutos: {replicas.map((r, i) => `R${i + 1} ${r}`).join(', ')}. Promedio 34.6 minutos.</figcaption>
+        <div class="rbars" data-io aria-hidden="true">
+          <div class="avg" style={`bottom:${((prom / maxR) * 100).toFixed(2)}%`}><span class="mono">Prom. 34.6</span></div>
+          {replicas.map((r, i) => (
+            <div class:list={['rb', { hi: r > prom }]}>
+              <div class="rbar" data-grow="y" style={`height:${(r / maxR) * 100}%; --d:${i * 70}`}><span class="mono">{r}</span></div>
+            </div>
+          ))}
+        </div>
+        <div class="rl mono" aria-hidden="true">{replicas.map((_, i) => <span>R{i + 1}</span>)}</div>
+      </figure>
+      <div class="avgcard" data-reveal="right" style="--d:200">
+        <p class="kicker">[ Promedio ]</p>
+        <p class="giant"><span data-count="34.6" data-dec="1">34.6</span></p>
+        <p class="u">Minutos en cola</p>
+        <p class="mono small">Rango: 2.7 a 85.8 min. Por eso se reporta el promedio de las 10 réplicas.</p>
+      </div>
+    </div>
+    <p class="source" data-reveal="up">Fuente: XLSX › Simulador (C22–C32) · línea = promedio · rojo = sobre el promedio</p>
+  </div>
+</section>
+
+<!-- 04.4 Laboratorio -->
+<section class="section">
+  <div class="wrap">
+    <p class="eyebrow" data-reveal="up">04.4 — Laboratorio universitario simulado</p>
+    <h2 class="title"><Split as="span" text="El simulador confirma" /> <span class="hl">el problema</span></h2>
+    <p class="lead mono" data-reveal="up">10 réplicas de 480 h · 48 h de calentamiento</p>
+    <div class="lab-layout">
+      <figure class="shot" data-reveal="wipe">
+        <a href="/media/simulador-laboratorio.webp" target="_blank" rel="noopener" aria-label="Ver captura del simulador del laboratorio en tamaño completo">
+          <img src="/media/simulador-laboratorio.webp" alt="Captura de JaamSim: simulador del laboratorio universitario con 2 impresoras." loading="lazy" width="1919" height="1035" />
+        </a>
+      </figure>
+      <div class="lab-stats">
+        {laboratorio.map((l, i) => (
+          <div class="card glow" data-reveal="right" style={`--d:${i * 120}`}>
+            <p class="kicker">{l.k}</p>
+            <p class="big red"><span data-count={l.v} data-dec={l.dec} data-suf={l.suf}>{l.v}{l.suf}</span></p>
+            <p class="mono small">Excel: {l.excel}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Video completo -->
+<section id="video" class="section video-sec">
+  <div class="wrap">
+    <p class="eyebrow" data-reveal="up">Recorrido completo</p>
+    <h2 class="title"><Split as="span" text="Mira la simulación" /> <span class="hl">en acción</span></h2>
+    <p class="lead" data-reveal="up">El video completo del simulador: el modelo de EjeZ con 6 impresoras, el laboratorio con 2 y la comparación con Excel.</p>
+    <figure class="screen big-screen" data-reveal="screen">
+      <div class="chrome mono" aria-hidden="true"><span>[ Video ] Simulador completo</span><span>09:44</span></div>
+      <video controls playsinline preload="none" poster="/media/simulador-completo-poster.jpg">
+        <source src="/media/simulador-completo.mp4" type="video/mp4" />
+        Tu navegador no puede reproducir este video. <a href="/media/simulador-completo.mp4">Descárgalo aquí</a>.
+      </video>
+      <figcaption class="sr-only">Video completo del simulador en JaamSim, 9 minutos 44 segundos.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<style>
+  .flow { list-style: none; padding: 0; margin: 48px 0 0; display: grid; grid-template-columns: repeat(5, 1fr); border: var(--b); border-bottom: 0; }
+  .stage { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 18px; min-height: 170px; border-right: var(--b); }
+  .stage:last-child { border-right: 0; }
+  .stage:nth-child(3) { background: var(--ink); color: var(--paper); }
+  .sn { font-size: 12px; color: var(--red); font-weight: 700; }
+  .stage b { margin-top: auto; font-size: 1.3rem; text-transform: uppercase; letter-spacing: -0.02em; line-height: 1; }
+  .sub { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .led { position: absolute; top: 18px; right: 18px; width: 12px; height: 12px; border: 2px solid currentColor; }
+  :global(html.motion) .led { animation: led 2.5s steps(1) infinite; animation-delay: calc(var(--i) * 0.5s); }
+  @keyframes led { 0%, 19% { background: var(--red); border-color: var(--red); } 20%, 100% { background: transparent; } }
+  .belt { position: relative; height: 26px; border: var(--b); overflow: hidden; background: repeating-linear-gradient(90deg, var(--ink) 0 2px, transparent 2px 22px); }
+  .belt span { position: absolute; top: 4px; left: 0; width: 14px; height: 14px; background: var(--red); }
+  :global(html.motion) .belt span { animation: travel 5s linear infinite; }
+  :global(html.motion) .belt span:nth-child(2) { animation-delay: -1.66s; }
+  :global(html.motion) .belt span:nth-child(3) { animation-delay: -3.33s; }
+  :global(html.motion) .belt { animation: belt 0.6s linear infinite; }
+  @keyframes travel { from { left: -14px; } to { left: 100%; } }
+  @keyframes belt { to { background-position: 22px 0; } }
+
+  .sim-layout { display: grid; grid-template-columns: 2fr 1fr; margin-top: 40px; }
+  .screen { margin: 0; border: var(--b); background: var(--ink); }
+  .screen video { width: 100%; aspect-ratio: 16 / 9; object-fit: contain; background: var(--ink); }
+  .chrome { display: flex; justify-content: space-between; gap: 10px; padding: 9px 12px; background: var(--paper); border-bottom: var(--b); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .config { padding: clamp(18px, 2.6vw, 30px); background: var(--ink); color: var(--paper); border: var(--b); border-left: 0; display: flex; flex-direction: column; justify-content: center; }
+  .config .kicker { color: #b9b8b0; }
+  .config ul { list-style: none; padding: 0; margin: 18px 0 0; }
+  .config li { display: flex; align-items: baseline; gap: 12px; padding: 14px 0; border-top: 1px solid #444; text-transform: uppercase; font-weight: 600; }
+  .n { font-size: 2rem; font-weight: 900; color: var(--red); min-width: 2.4ch; letter-spacing: -0.04em; }
+
+  .ev { margin-top: 48px; }
+  .ev-bottom { display: grid; grid-template-columns: 1fr 1.3fr; border: var(--b); border-top: 0; }
+  .note { padding: clamp(18px, 2.6vw, 30px); border-right: var(--b); font-size: 1.15rem; font-weight: 600; display: flex; flex-direction: column; justify-content: center; gap: 8px; }
+  .note b { text-transform: uppercase; display: block; font-size: 1.4rem; letter-spacing: -0.02em; }
+  .shot { margin: 0; position: relative; }
+  .shot a { display: block; overflow: hidden; }
+  .shot img { width: 100%; height: auto; filter: grayscale(1) contrast(1.1); transition: filter 0.3s; }
+  .shot a:hover img { filter: none; }
+  .shot figcaption { position: absolute; left: 0; bottom: 0; background: var(--ink); color: var(--paper); font-size: 11px; padding: 7px 10px; text-transform: uppercase; }
+
+  .rep-layout { display: grid; grid-template-columns: 2fr 1fr; margin-top: 48px; border: var(--b); }
+  .rep-chart { margin: 0; padding: clamp(18px, 2.6vw, 30px); border-right: var(--b); }
+  .rbars { position: relative; display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; height: 300px; align-items: end; border-bottom: var(--b); }
+  .rb { height: 100%; display: flex; flex-direction: column; justify-content: flex-end; }
+  .rbar { position: relative; width: 100%; background: var(--ink); transform-origin: 50% 100%; min-height: 3px; }
+  .hi .rbar { background: var(--red); }
+  .rbar span { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 10.5px; font-weight: 700; white-space: nowrap; }
+  .rl { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; margin-top: 8px; font-size: 11px; text-align: center; font-weight: 700; }
+  .avg { position: absolute; left: 0; right: 0; height: 0; border-top: 2px dashed var(--ink); z-index: 2; pointer-events: none; }
+  .avg span { position: absolute; left: 0; top: -22px; font-size: 10px; background: var(--paper); border: 1px solid var(--ink); padding: 2px 5px; text-transform: uppercase; }
+  :global(html.motion) .avg { transform: scaleX(0); transform-origin: 0 50%; transition: transform 0.8s var(--snap) 0.9s; }
+  :global(html.motion) .is-in .avg { transform: none; }
+  .avgcard { padding: clamp(18px, 2.6vw, 30px); display: flex; flex-direction: column; justify-content: center; gap: 8px; background: var(--red); color: var(--paper); }
+  .avgcard .kicker { color: var(--paper); }
+  .giant { font-size: clamp(5rem, 10vw, 9rem); font-weight: 900; line-height: 0.82; letter-spacing: -0.07em; font-stretch: 120%; }
+  .u { font-weight: 900; text-transform: uppercase; font-size: 1.2rem; }
+  .small { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.04em; margin-top: 10px; }
+
+  .lab-layout { display: grid; grid-template-columns: 1.6fr 1fr; margin-top: 40px; border: var(--b); }
+  .lab-layout .shot { border-right: var(--b); }
+  .lab-stats { display: grid; }
+  .lab-stats .card { border: 0; border-bottom: var(--b); }
+  .lab-stats .card:last-child { border-bottom: 0; }
+  .lab-stats .big { margin: 8px 0 4px; }
+  .lab-stats .card.glow:hover .big { color: var(--paper); }
+
+  .big-screen { margin-top: 48px; }
+
+  @media (max-width: 900px) {
+    .flow { grid-template-columns: 1fr; }
+    .stage { border-right: 0; border-bottom: var(--b); min-height: 0; flex-direction: row; align-items: baseline; gap: 14px; }
+    .stage:last-child { border-bottom: 0; }
+    .stage b { margin-top: 0; min-width: 7.5em; }
+    .sim-layout, .ev-bottom, .rep-layout, .lab-layout { grid-template-columns: 1fr; }
+    .config { border-left: var(--b); border-top: 0; }
+    .note, .rep-chart, .lab-layout .shot { border-right: 0; border-bottom: var(--b); }
+    .rbars { height: 230px; gap: 3px; }
+    .rl { gap: 3px; font-size: 9px; }
+    .rbar span { font-size: 8.5px; }
+  }
+</style>

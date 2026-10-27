@@ -1,0 +1,23 @@
+---
+// Divide un texto en palabras para animarlas una por una.
+// Los lectores de pantalla leen la frase completa (sr-only); las palabras van aria-hidden.
+interface Props {
+  text: string;
+  as?: 'h1' | 'h2' | 'h3' | 'p' | 'span';
+  class?: string;
+  delay?: number;
+}
+const { text, as: Tag = 'h2', class: cls = '', delay = 0 } = Astro.props;
+const words = text.split(' ');
+---
+
+<Tag class:list={['split', cls]} style={`--d:${delay}`}>
+  <span class="sr-only">{text}</span>
+  <span aria-hidden="true">
+    {words.map((w, i) => (
+      <Fragment>
+        <span class="w"><span class="wi" style={`--i:${i}`}>{w}</span></span>{i < words.length - 1 ? ' ' : ''}
+      </Fragment>
+    ))}
+  </span>
+</Tag>

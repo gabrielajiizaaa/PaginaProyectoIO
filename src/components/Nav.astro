@@ -1,0 +1,46 @@
+---
+import { agenda } from '../data/ejez';
+---
+
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="#inicio" aria-label="EjeZ, ir al inicio">
+      <span class="sq" aria-hidden="true"></span>EJEZ<sup>®</sup>
+    </a>
+    <nav aria-label="Secciones">
+      <ul class="nav-links">
+        {agenda.map((a) => (
+          <li><a href={a.href}><span>{a.n}</span>{a.titulo}</a></li>
+        ))}
+        <li><a href="#conclusiones"><span>06</span>Conclusiones</a></li>
+      </ul>
+    </nav>
+    <button class="menu-btn" aria-expanded="false" aria-label="Abrir menú">MENÚ</button>
+  </div>
+</header>
+
+<style>
+  .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 180; background: var(--paper); border-bottom: var(--b); }
+  .nav-inner { display: flex; align-items: stretch; justify-content: space-between; height: 56px; }
+  .brand { display: flex; align-items: center; gap: 10px; padding: 0 var(--gutter); border-right: var(--b); font-weight: 900; font-size: 22px; letter-spacing: -0.04em; text-decoration: none; font-stretch: 120%; }
+  .brand sup { font: 600 10px var(--mono); }
+  .sq { width: 16px; height: 16px; background: var(--red); }
+  .nav-links { list-style: none; display: flex; margin: 0; padding: 0; height: 100%; }
+  .nav-links li { border-left: var(--b); }
+  .nav-links a { display: flex; align-items: center; gap: 8px; height: 100%; padding: 0 16px; text-decoration: none; font: 600 11.5px var(--mono); letter-spacing: 0.06em; text-transform: uppercase; transition: background 0.15s, color 0.15s; }
+  .nav-links a span { color: var(--red); }
+  .nav-links a:hover { background: var(--ink); color: var(--paper); }
+  .nav-links a.active { background: var(--red); color: var(--paper); }
+  .nav-links a.active span { color: var(--paper); }
+  .menu-btn { display: none; }
+
+  @media (max-width: 1080px) {
+    .menu-btn { display: block; padding: 0 20px; border: 0; border-left: var(--b); background: var(--ink); color: var(--paper); font: 700 12px var(--mono); letter-spacing: 0.1em; cursor: pointer; }
+    .nav.open .menu-btn { background: var(--red); }
+    nav { position: absolute; top: 100%; left: 0; right: 0; background: var(--paper); border-bottom: var(--b); display: none; }
+    .nav.open nav { display: block; }
+    .nav-links { flex-direction: column; height: auto; }
+    .nav-links li { border-left: 0; border-top: 1px solid var(--ink); }
+    .nav-links a { padding: 16px var(--gutter); font-size: 14px; }
+  }
+</style>

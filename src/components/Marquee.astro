@@ -1,0 +1,15 @@
+---
+interface Props {
+  items: string[];
+  dark?: boolean;
+  rev?: boolean;
+  speed?: number;
+}
+const { items, dark = false, rev = false, speed = 30 } = Astro.props;
+---
+
+<div class:list={['marquee', { dark, rev }]} style={`--speed:${speed}s`} aria-hidden="true">
+  <div class="marquee-track">
+    {[...items, ...items].map((t, i) => <span class:list={{ dup: i >= items.length }}>{t}</span>)}
+  </div>
+</div>

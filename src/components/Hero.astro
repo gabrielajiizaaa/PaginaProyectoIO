@@ -1,0 +1,129 @@
+---
+import Split from './Split.astro';
+import Marquee from './Marquee.astro';
+import { equipo } from '../data/ejez';
+const capas = Array.from({ length: 12 }, (_, i) => i);
+const ticker = ['17.05 h → 34.2 min', '6 impresoras', 'Z = Q5,936.25', 'JaamSim × 10', 'Q40,000', 'ROI 53 %'];
+---
+
+<section id="inicio" class="hero">
+  <div class="meta">
+    <p class="cell mono" data-reveal="down"><span class="k">Proyecto final</span>{equipo.curso}</p>
+    <p class="cell mono" data-reveal="down" style="--d:80"><span class="k">Unidad</span>{equipo.grupo} / REV 1.0</p>
+    <p class="cell mono" data-reveal="down" style="--d:160"><span class="k">Fecha</span>{equipo.fecha}</p>
+    <p class="cell mono status" data-reveal="down" style="--d:240"><span class="k">Sys.boot</span><span class="caret" data-type="500" aria-label="EJEZ_SIM — STATUS: OK">EJEZ_SIM — STATUS: OK</span></p>
+  </div>
+
+  <h1 class="word">
+    <span class="sr-only">EjeZ</span>
+    <span aria-hidden="true" class="letters">
+      <span class="l" style="--i:0">E</span><span class="l" style="--i:1">J</span><span class="l" style="--i:2">E</span><span class="l z" style="--i:3">Z</span>
+    </span>
+  </h1>
+
+  <div class="row">
+    <div class="cell copy">
+      <Split as="p" class="hero-sub" text="Impresión 3D bajo demanda, dimensionada con colas, programación lineal y simulación." delay={450} />
+      <div class="cta" data-reveal="up" style="--d:800">
+        <a class="btn" href="#problema">Ver el proyecto ↓</a>
+        <a class="btn ghost" href="#video">▶ Ver la simulación</a>
+      </div>
+      <p class="credit mono" data-reveal="up" style="--d:950">
+        {equipo.integrantes.map((p) => `${p.nombre} · ${p.carne}`).join(' / ')}
+      </p>
+    </div>
+
+    <figure class="cell vid" data-reveal="screen" style="--d:300">
+      <video data-ambient muted loop playsinline preload="metadata" poster="/media/hero-poster.jpg" aria-hidden="true">
+        <source src="/media/hero.webm" type="video/webm" />
+        <source src="/media/hero.mp4" type="video/mp4" />
+      </video>
+      <figcaption class="mono tag">[ CAM-01 ] Impresora en operación</figcaption>
+      <span class="rec mono" aria-hidden="true">● REC</span>
+    </figure>
+
+    <div class="cell printer" aria-hidden="true" data-reveal="wipe" style="--d:500">
+      <p class="kicker">Pieza en proceso</p>
+      <div class="stage">
+        <div class="head"></div>
+        <div class="model">
+          {capas.map((i) => <span class="layer" style={`--l:${i}`}></span>)}
+        </div>
+        <div class="bed"></div>
+      </div>
+      <p class="mono read"><span>Z +0.20</span><span>215 °C</span><span>PLA</span></p>
+    </div>
+  </div>
+
+  <Marquee items={ticker} speed={26} />
+</section>
+
+<style>
+  .hero { padding-top: 56px; }
+  .meta { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: var(--b); }
+  .cell { margin: 0; }
+  .meta .cell { padding: 12px var(--gutter) 12px 16px; border-right: var(--b); font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; min-height: 62px; }
+  .meta .cell:first-child { padding-left: var(--gutter); }
+  .meta .cell:last-child { border-right: 0; }
+  .k { display: block; color: var(--mute); font-size: 10px; margin-bottom: 4px; }
+  .status { background: var(--ink); color: var(--paper); }
+  .status .k { color: var(--red); }
+
+  .word { line-height: 0.78; border-bottom: var(--b); overflow: hidden; padding: 2vw var(--gutter) 0.6vw; }
+  .letters { display: flex; justify-content: space-between; font-size: clamp(6rem, 27vw, 30rem); font-weight: 900; letter-spacing: -0.06em; font-stretch: 125%; }
+  .l { display: inline-block; }
+  .z { color: var(--red); }
+  :global(html.motion) .l { animation: drop 0.9s var(--snap) both; animation-delay: calc(var(--i) * 90ms + 100ms); }
+  :global(html.motion) .z { animation: drop 0.9s var(--snap) both 370ms, jolt 4s steps(1) infinite 2s; }
+  @keyframes drop { from { transform: translateY(100%); } to { transform: none; } }
+  @keyframes jolt {
+    0%, 90%, 100% { transform: none; color: var(--red); }
+    91% { transform: translate(-1.5%, 0); color: var(--ink); }
+    93% { transform: translate(1.5%, 0) skewX(-6deg); color: var(--red); }
+    95% { transform: none; color: var(--ink); }
+    97% { color: var(--red); }
+  }
+
+  .row { display: grid; grid-template-columns: 1.25fr 1.25fr 0.8fr; }
+  .row > .cell { border-right: var(--b); }
+  .row > .cell:last-child { border-right: 0; }
+  .copy { padding: 34px var(--gutter); display: flex; flex-direction: column; gap: 28px; }
+  :global(.hero-sub) { font-size: clamp(1.4rem, 2.4vw, 2.1rem); font-weight: 800; line-height: 1.05; letter-spacing: -0.03em; text-transform: uppercase; max-width: 20ch; }
+  .cta { display: flex; flex-wrap: wrap; gap: 10px; }
+  .credit { font-size: 11px; color: var(--mute); text-transform: uppercase; letter-spacing: 0.06em; margin-top: auto; }
+
+  .vid { position: relative; min-height: 340px; background: var(--ink); overflow: hidden; }
+  .vid video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.35) brightness(1.1); }
+  .tag { position: absolute; left: 0; bottom: 0; background: var(--paper); color: var(--ink); font-size: 11px; padding: 8px 10px; border-top: var(--b); border-right: var(--b); text-transform: uppercase; letter-spacing: 0.06em; }
+  .rec { position: absolute; top: 0; right: 0; background: var(--red); color: var(--paper); font-size: 11px; padding: 7px 10px; }
+  :global(html.motion) .rec { animation: blink 1.2s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .printer { padding: 22px; display: flex; flex-direction: column; gap: 14px; background: var(--paper-2); }
+  .stage { position: relative; flex: 1; min-height: 220px; border: var(--b); background: var(--paper); background-image: linear-gradient(var(--paper-2) 1px, transparent 1px), linear-gradient(90deg, var(--paper-2) 1px, transparent 1px); background-size: 20px 20px; }
+  .bed { position: absolute; left: 10%; right: 10%; bottom: 14px; height: 10px; background: var(--ink); }
+  .model { position: absolute; left: 22%; right: 22%; bottom: 24px; display: flex; flex-direction: column-reverse; align-items: center; }
+  .layer { display: block; height: 10px; width: calc(100% - var(--l) * 5%); background: var(--ink); border-top: 2px solid var(--paper); }
+  .layer:nth-child(4n) { background: var(--red); }
+  .head { position: absolute; left: 50%; top: 14px; width: 34px; height: 30px; margin-left: -17px; background: var(--ink); }
+  .head::after { content: ''; position: absolute; left: 13px; bottom: -10px; width: 8px; height: 10px; background: var(--red); }
+  .read { display: flex; justify-content: space-between; font-size: 11px; text-transform: uppercase; }
+  :global(html.motion) .model { animation: build 6s steps(12) infinite; }
+  :global(html.motion) .head { animation: sweep 0.4s linear infinite alternate; }
+  @keyframes build { 0% { clip-path: inset(100% 0 0 0); } 80%, 100% { clip-path: inset(0 0 0 0); } }
+  @keyframes sweep { from { transform: translateX(-50px); } to { transform: translateX(50px); } }
+
+  @media (max-width: 1000px) {
+    .meta { grid-template-columns: 1fr 1fr; }
+    .meta .cell:nth-child(2) { border-right: 0; }
+    .meta .cell:nth-child(-n + 2) { border-bottom: var(--b); }
+    .meta .cell:nth-child(3) { padding-left: var(--gutter); }
+    .row { grid-template-columns: 1fr 1fr; }
+    .copy { grid-column: 1 / -1; border-right: 0 !important; border-bottom: var(--b); }
+  }
+  @media (max-width: 600px) {
+    .row { grid-template-columns: 1fr; }
+    .row > .cell { border-right: 0; border-bottom: var(--b); }
+    .vid { min-height: 240px; }
+  }
+</style>

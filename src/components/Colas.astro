@@ -1,0 +1,224 @@
+---
+import Split from './Split.astro';
+import { datosModelo, costos, temporada } from '../data/ejez';
+const maxCosto = 125;
+const fmtQ = (n: number) => 'Q' + n.toFixed(2);
+---
+
+<!-- 02.1 Datos del modelo -->
+<section class="section">
+  <div class="wrap">
+    <p class="eyebrow" data-reveal="up">02.1 — Datos del modelo</p>
+    <Split as="h2" class="title" text="Cuatro datos alimentan el modelo" />
+    <div class="grid grid-4 datos">
+      {datosModelo.map((d, i) => (
+        <div class="card glow dato" data-reveal="up" style={`--d:${i * 90}`}>
+          <p class="kicker">{String(i + 1).padStart(2, '0')} / {d.k}</p>
+          <p class="dv">{d.v}</p>
+          <p class="c-muted">{d.d}</p>
+        </div>
+      ))}
+    </div>
+    <div class="formula" data-reveal="wipe">
+      <span class="mono f">ρ = λ / (s · μ) &lt; 1</span>
+      <span>Con <b>4 impresoras o menos</b> la cola crece sin límite</span>
+    </div>
+    <p class="source" data-reveal="up">Fuente: XLSX › Colas (B4–B16) · Modelo M/M/s</p>
+  </div>
+</section>
+
+<!-- 02.2 Costo total -->
+<section class="section">
+  <div class="wrap">
+    <p class="eyebrow" data-reveal="up">02.2 — Costo total por hora</p>
+    <h2 class="title"><span class="hl">6 impresoras</span> <Split as="span" text="minimizan el costo" delay={200} /></h2>
+
+    <div class="cost-layout">
+      <figure class="chart" data-reveal="screen">
+        <figcaption class="sr-only">Costo total por hora según el número de impresoras. Con 1 a 4 impresoras la cola crece sin límite. Con 5: Q110.67, con 6: Q98.12 (óptimo), con 7: Q100.67, con 8: Q106.43.</figcaption>
+        <div class="legend mono" aria-hidden="true">
+          <span><i class="sw wait"></i>Costo de espera</span>
+          <span><i class="sw prn"></i>Costo de impresoras</span>
+          <span><i class="sw inf"></i>ρ ≥ 1 · cola infinita</span>
+        </div>
+        <div class="bars" data-io aria-hidden="true">
+          {costos.map((c, i) => {
+            const total = c.espera === null ? null : c.espera + c.impresoras;
+            return (
+              <div class:list={['col', { best: c.s === 6, inf: total === null }]}>
+                <span class="val mono">{total === null ? '∞' : fmtQ(total)}</span>
+                <div class="stack" data-grow="y" style={`--d:${i * 80}; height:${total === null ? 86 : (total / maxCosto) * 100}%`}>
+                  {total === null ? <span class="seg infseg"></span> : (
+                    <Fragment>
+                      <span class="seg wait" style={`flex:${c.espera}`}></span>
+                      <span class="seg prn" style={`flex:${c.impresoras}`}></span>
+                    </Fragment>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div class="axis mono" aria-hidden="true">{costos.map((c) => <span class:list={{ best: c.s === 6 }}>{c.s}</span>)}</div>
+        <p class="note mono">Impresoras en servicio</p>
+      </figure>
+
+      <div class="card redbg optimo" data-reveal="right" style="--d:200">
+        <p class="kicker">[ Óptimo ]</p>
+        <p class="giant"><span data-count="6">6</span></p>
+        <p class="ol">Impresoras · Q98.12 / h</p>
+        <dl class="facts mono">
+          <div><dt>Espera en cola</dt><dd>34.2 min</dd></div>
+          <div><dt>Utilización</dt><dd>66.7 %</dd></div>
+        </dl>
+      </div>
+    </div>
+    <p class="source" data-reveal="up">Fuente: XLSX › Colas (B21–B35)</p>
+  </div>
+</section>
+
+<!-- 02.3 Hallazgo -->
+<section class="section">
+  <div class="wrap">
+    <p class="eyebrow" data-reveal="up">02.3 — El hallazgo</p>
+    <h2 class="title"><Split as="span" text="La espera en cola cae" /> <span class="hl">96.7 %</span></h2>
+
+    <div class="compare">
+      <div class="lane bad" data-reveal="left">
+        <div class="lane-head">
+          <p class="kicker">Laboratorio hoy · 2 impresoras</p>
+          <p class="big red"><span data-count="17.05" data-dec="2" data-suf=" h">17.05 h</span></p>
+        </div>
+        <div class="sim" aria-hidden="true">
+          <div class="queue">
+            {Array.from({ length: 8 }, (_, i) => <span class="dot" style={`--i:${i}`}></span>)}
+          </div>
+          <div class="servers">
+            <span class="srv busy"></span><span class="srv busy"></span>
+          </div>
+        </div>
+        <p class="lane-foot mono">7.67 pedidos en cola</p>
+      </div>
+      <div class="lane good" data-reveal="right">
+        <div class="lane-head">
+          <p class="kicker">Con EjeZ · 6 impresoras</p>
+          <p class="big"><span data-count="34.2" data-dec="1" data-suf=" min">34.2 min</span></p>
+        </div>
+        <div class="sim" aria-hidden="true">
+          <div class="queue"><span class="dot" style="--i:0"></span></div>
+          <div class="servers six">
+            <span class="srv busy"></span><span class="srv busy"></span><span class="srv busy"></span><span class="srv busy"></span><span class="srv"></span><span class="srv"></span>
+          </div>
+        </div>
+        <p class="lane-foot mono">0.57 pedidos en cola</p>
+      </div>
+    </div>
+    <p class="source" data-reveal="up">■ Impresoras ocupadas en promedio · ● pedidos esperando (promedio teórico) · Fuente: XLSX › Colas (B25, B70–B74)</p>
+  </div>
+</section>
+
+<!-- 02.4 Temporada alta -->
+<section class="section">
+  <div class="wrap">
+    <p class="eyebrow" data-reveal="up">02.4 — Riesgo: época de entregas</p>
+    <h2 class="title"><Split as="span" text="Temporada alta:" /> <span class="hl">6 no alcanzan</span></h2>
+    <p class="lead" data-reveal="up">La demanda sube <b class="red">40 %</b>: de 1 a 1.4 pedidos por hora.</p>
+
+    <div class="grid grid-3 seasons">
+      {temporada.map((t, i) => (
+        <div class:list={['card season', t.tono, { redbg: t.tono === 'good' }]} data-reveal="up" style={`--d:${i * 120}`}>
+          <p class="kicker">{t.titulo}</p>
+          <p class="big"><span data-count={t.min} data-suf=" min">{t.min} min</span></p>
+          <p class="c-muted mono">En cola{t.extra && ` · ${t.extra}`}</p>
+          <div class="wbar" aria-hidden="true"><span data-grow="x" style={`width:${Math.max(3, (t.min / 494) * 100)}%; --d:${300 + i * 120}`}></span></div>
+          <dl class="mono">
+            <div><dt>Utilización</dt><dd>{t.util} %</dd></div>
+            <div><dt>Costo total</dt><dd>{t.costo}</dd></div>
+          </dl>
+        </div>
+      ))}
+    </div>
+    <p class="source" data-reveal="up">Fuente: XLSX › Colas (B37–B55)</p>
+  </div>
+</section>
+
+<style>
+  .datos { margin-top: 48px; }
+  .dato { min-height: 210px; display: flex; flex-direction: column; gap: 8px; }
+  .dv { font-size: 1.9rem; font-weight: 900; margin-top: auto; letter-spacing: -0.03em; text-transform: uppercase; line-height: 1; }
+  .formula { margin-top: -2px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px 24px; padding: 18px 22px; background: var(--ink); color: var(--paper); font-weight: 600; text-transform: uppercase; font-size: 0.95rem; }
+  .formula .f { text-transform: none; color: var(--paper); background: var(--red); padding: 6px 10px; font-size: 1.05rem; }
+
+  .cost-layout { display: grid; grid-template-columns: 1.8fr 1fr; margin-top: 48px; border: var(--b); }
+  .chart { margin: 0; padding: clamp(18px, 2.6vw, 30px); border-right: var(--b); }
+  .legend { display: flex; gap: 8px 20px; font-size: 11px; flex-wrap: wrap; text-transform: uppercase; letter-spacing: 0.05em; }
+  .legend span { display: inline-flex; align-items: center; gap: 8px; }
+  .sw { width: 14px; height: 14px; display: inline-block; border: 2px solid var(--ink); }
+  .sw.wait, .seg.wait { background: var(--ink); }
+  .sw.prn, .seg.prn { background: var(--paper-2); }
+  .sw.inf, .infseg { background: repeating-linear-gradient(-45deg, var(--ink) 0 3px, transparent 3px 8px); }
+  .bars { display: grid; grid-template-columns: repeat(8, 1fr); align-items: end; gap: 8px; height: 300px; margin-top: 28px; border-bottom: var(--b); }
+  .col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 6px; }
+  .val { font-size: 11px; font-weight: 700; white-space: nowrap; }
+  .stack { width: 100%; display: flex; flex-direction: column; transform-origin: 50% 100%; border: 2px solid var(--ink); border-bottom: 0; }
+  .seg { display: block; min-height: 2px; }
+  .seg.prn { border-top: 2px solid var(--ink); }
+  .infseg { flex: 1; }
+  .inf .val { font-size: 20px; }
+  .best .stack { border-color: var(--red); }
+  .best .seg.wait { background: var(--red); }
+  .best .val { background: var(--red); color: var(--paper); padding: 3px 5px; }
+  .axis { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; margin-top: 8px; text-align: center; font-weight: 700; font-size: 14px; }
+  .axis .best { background: var(--red); color: var(--paper); }
+  .note { margin-top: 10px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--mute); }
+
+  .optimo { border: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 16px; }
+  .giant { font-size: clamp(8rem, 16vw, 14rem); font-weight: 900; line-height: 0.8; letter-spacing: -0.08em; font-stretch: 125%; }
+  .ol { font-size: 1.3rem; font-weight: 900; text-transform: uppercase; }
+  .facts { margin: 0; border-top: 2px solid var(--paper); }
+  .facts div { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--paper); font-size: 13px; text-transform: uppercase; }
+  .facts dd { margin: 0; font-weight: 700; }
+
+  .compare { display: grid; grid-template-columns: 1fr 1fr; margin-top: 48px; border: var(--b); }
+  .lane { display: flex; flex-direction: column; gap: 20px; padding: clamp(18px, 2.6vw, 30px); }
+  .lane.bad { border-right: var(--b); }
+  .lane.good { background: var(--ink); color: var(--paper); }
+  .lane.good .kicker { color: #b9b8b0; }
+  .lane-head .big { margin-top: 10px; }
+  .sim { display: flex; align-items: center; justify-content: space-between; gap: 14px; min-height: 130px; padding: 18px; border: 2px dashed currentColor; overflow: hidden; }
+  .queue { display: flex; flex-wrap: wrap; gap: 8px; flex: 1; }
+  .dot { width: 24px; height: 24px; border-radius: 50% !important; background: var(--red); }
+  .servers { display: grid; grid-template-columns: repeat(2, 32px); gap: 6px; }
+  .servers.six { grid-template-columns: repeat(3, 32px); }
+  .srv { width: 32px; height: 32px; border: 2px solid currentColor; }
+  .srv.busy { background: currentColor; }
+  .lane-foot { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
+  :global(html.motion) .bad .dot { animation: jitter 1s steps(2) infinite; animation-delay: calc(var(--i) * -0.13s); }
+  :global(html.motion) .good .dot { animation: flow 2.4s var(--snap) infinite; }
+  :global(html.motion) .srv.busy { animation: work 1.6s steps(1) infinite; }
+  :global(html.motion) .srv.busy:nth-child(2n) { animation-delay: -0.8s; }
+  @keyframes jitter { 50% { transform: translateX(4px); } }
+  @keyframes flow { 0% { transform: translateX(-40px); } 70%, 100% { transform: translateX(160px); } }
+  @keyframes work { 50% { opacity: 0.35; } }
+
+  .seasons { margin-top: 40px; }
+  .season .big { margin: 14px 0 6px; }
+  .season.bad .big { color: var(--red); }
+  .wbar { height: 16px; border: var(--b); margin: 18px 0; }
+  .season.redbg .wbar { border-color: var(--paper); }
+  .wbar span { display: block; height: 100%; background: currentColor; transform-origin: 0 50%; }
+  .season.bad .wbar span { background: var(--red); }
+  dl { margin: 0; }
+  .season dl div { display: flex; justify-content: space-between; gap: 10px; padding: 9px 0; border-top: 1px solid currentColor; font-size: 13px; text-transform: uppercase; }
+  dd { margin: 0; font-weight: 700; }
+
+  @media (max-width: 900px) {
+    .cost-layout, .compare { grid-template-columns: 1fr; }
+    .chart { border-right: 0; border-bottom: var(--b); }
+    .lane.bad { border-right: 0; border-bottom: var(--b); }
+    .bars { height: 240px; gap: 4px; }
+    .axis { gap: 4px; }
+    .val { font-size: 9px; writing-mode: vertical-rl; transform: rotate(180deg); }
+    .inf .val { writing-mode: horizontal-tb; transform: none; }
+  }
+</style>
